@@ -1,0 +1,19 @@
+﻿# Gradle / Java
+.gradle/
+build/
+out/
+target/
+*.iml
+.idea/
+.vscode/
+*.log
+.env
+
+# MySQL/DB (no versionar)
+data_mysql/
+mysql_data/
+*.sock
+*.pid
+*.tmp
+*.err
+*.cnf

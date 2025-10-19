@@ -1,0 +1,85 @@
+body {
+    padding-top: 70px;
+    padding-bottom: 70px;
+}
+
+.table {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    border: 1px solid #ddd;
+    text-align: center;
+    vertical-align: middle;
+    padding: 8px;
+    word-wrap: break-word;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.btn {
+    margin: 5px;
+    padding: 5px 10px;
+}
+
+.form-inline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.form-inline .form-control {
+    width: auto;
+    flex: 1 1 auto;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: #fff;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.input-group .form-control {
+    border-radius: 0;
+}
+
+.input-group .btn {
+    border-radius: 0;
+}
+
+.input-group-append .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+input[type="text"], input[type="number"] {
+    border-radius: 4px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    width: 150px;
+}
+
+input[type="number"] {
+    width: 100px;
+}
+
+input[type="text"]::placeholder, input[type="number"]::placeholder {
+    font-size: 0.9rem;
+    color: #aaa;
+}

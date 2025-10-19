@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="master">
+<head>
+    <title>Ver Ventas</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<main layout:fragment="contenido">
+    <div class="col-12">
+        <h2>Ventas</h2>
+        <div th:classappend="'alert-' + (${clase != null} ? ${clase} : info)" th:if="${mensaje != null}"
+             th:text="${mensaje}"
+             class="alert">
+        </div>
+        <a class="btn btn-success mb-2" th:href="@{/vender/}">Agregar</a>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Total</th>
+                    <th>Productos</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="venta : ${ventas}">
+                    <td th:text="${venta.fechaYHora}"></td>
+                    <td th:text="${#numbers.formatDecimal(venta.Total, 0, 2)}"></td>
+                    <td>
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Código de barras</th>
+                                <th>Cantidad vendida</th>
+                                <th>Precio</th>
+                                <th>Total</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="producto : ${venta.productos}">
+                                <td th:text="${producto.nombre}"></td>
+                                <td th:text="${producto.codigo}"></td>
+                                <td th:text="${producto.cantidad}"></td>
+                                <td th:text="${#numbers.formatDecimal(producto.precio, 0, 2)}"></td>
+                                <td th:text="${#numbers.formatDecimal(producto.precio * producto.cantidad, 0, 2)}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <form th:action="@{/vender/ventas/imprimir-factura}" method="post">
+                            <input type="hidden" name="id" th:value="${venta.id}" />
+                            <button type="submit" class="btn btn-primary">Imprimir factura</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script>
+    $(document).ready(function(){
+        $("#imprimirFacturaBtn").click(function(){
+            $("#imprimirFacturaForm").submit();
+        });
+    });
+</script>
+
+</body>
+</html>

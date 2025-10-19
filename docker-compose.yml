@@ -1,0 +1,13 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_dev
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ventas_springboot
+      MYSQL_USER: parzibyte
+      MYSQL_PASSWORD: hunter2
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./data_mysql:/var/lib/mysql

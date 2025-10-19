@@ -1,0 +1,63 @@
+buildscript {
+    repositories { mavenCentral() }
+    dependencies { classpath("org.springframework.boot:spring-boot-gradle-plugin:2.1.6.RELEASE") }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+bootJar {
+    baseName = 'sistema-ventas-by-parzibyte'
+    version  = '0.2.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+configurations {
+    developmentOnly
+    runtimeClasspath { extendsFrom developmentOnly }
+}
+
+dependencies {
+    // Spring
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+
+    // Thymeleaf extras y layout
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.4.1'
+
+    // Utilidades
+    implementation 'org.webjars:jquery:3.6.0'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+    implementation 'com.fasterxml.jackson.jr:jackson-jr-objects:2.13.0'
+
+    // Driver MySQL 8 (runtime)
+    runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+
+    // Dev
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Tests
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.jayway.jsonpath:json-path'
+}
+
+task createTestFolder {
+    doLast {
+        def testDir = file('src/test/java')
+        if (!testDir.exists()) testDir.mkdirs()
+    }
+}
+test.dependsOn createTestFolder
