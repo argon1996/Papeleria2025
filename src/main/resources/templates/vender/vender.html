@@ -1,33 +1,44 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org"
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="master">
+
 <head>
-    <!-- Agrega cualquier enlace a archivos de estilo CSS o scripts JS aquí -->
+    <meta charset="UTF-8">
+    <title>Vender</title>
 </head>
+
 <body>
 <main layout:fragment="contenido">
     <div class="col-12">
         <h2>Vender</h2>
-        <div th:classappend="'alert-' + (${clase != null} ? ${clase} : info)" th:if="${mensaje != null}"
-             th:text="${mensaje}"
-             class="alert">
-        </div>
+        <div th:classappend="'alert-' + (${clase != null} ? ${clase} : info)"
+             th:if="${mensaje != null}"
+             th:text="${mensaje}" class="alert"></div>
+
+        <!-- Form para ingresar el código -->
         <form th:object="${producto}" th:action="@{/vender/agregar}" method="post">
             <div class="form-group">
                 <label for="codigo">Código de barras</label>
-                <input autofocus autocomplete="off" th:field="*{codigo}" id="codigo"
+                <input autofocus autocomplete="off"
+                       th:field="*{codigo}" id="codigo"
                        placeholder="Escanea el código o escríbelo y presiona Enter"
-                       type="text"
-                       class="form-control" th:classappend="${#fields.hasErrors('codigo')} ? 'is-invalid' : ''">
+                       type="text" class="form-control"
+                       th:classappend="${#fields.hasErrors('codigo')} ? 'is-invalid' : ''">
                 <div class="invalid-feedback" th:errors="*{codigo}"></div>
             </div>
         </form>
+
+        <!-- Botones de acción -->
         <form id="formTerminarVenta" class="mb-2" th:action="@{/vender/terminar}" method="post">
             <button type="submit" class="btn btn-success">Terminar&nbsp;<i class="fa fa-check"></i></button>
             <a th:href="@{/vender/limpiar}" class="btn btn-danger">Cancelar venta&nbsp;<i class="fa fa-trash"></i></a>
         </form>
+
         <h1 th:text="${'Total: ' + total}"></h1>
+
+        <!-- Tabla de productos -->
         <div class="table-responsive">
             <table class="table table-bordered">
                 <thead>
@@ -45,11 +56,30 @@
                     <td th:text="${producto.nombre}"></td>
                     <td th:text="${producto.codigo}"></td>
                     <td th:text="${producto.precio}"></td>
-                    <td th:text="${producto.cantidad}"></td>
+                    <td>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <!-- Botón - -->
+                            <form th:action="@{/vender/actualizarCantidad/} + ${producto.id}" method="post" style="display:inline;">
+                                <input type="hidden" name="cantidad" th:value="${producto.cantidad - 1}" />
+                                <button type="submit" class="btn btn-secondary btn-sm me-1">-</button>
+                            </form>
+
+                            <input type="number" class="form-control text-center" style="width: 60px;"
+                                   th:value="${producto.cantidad}" readonly>
+
+                            <!-- Botón + -->
+                            <form th:action="@{/vender/actualizarCantidad/} + ${producto.id}" method="post" style="display:inline;">
+                                <input type="hidden" name="cantidad" th:value="${producto.cantidad + 1}" />
+                                <button type="submit" class="btn btn-secondary btn-sm ms-1">+</button>
+                            </form>
+                        </div>
+                    </td>
                     <td th:text="${producto.total}"></td>
                     <td>
                         <form th:action="@{/vender/quitar/} + ${iterador.index}" method="post">
-                            <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i></button>
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fa fa-trash"></i>
+                            </button>
                         </form>
                     </td>
                 </tr>
@@ -58,51 +88,6 @@
         </div>
     </div>
 </main>
-<script>
-    document.getElementById('formTerminarVenta').addEventListener('submit', function(event) {
-        event.preventDefault(); // Evita que el formulario se envíe de forma predeterminada
 
-        const form = event.target;
-        const formData = new FormData(form);
-
-        // Realiza una solicitud para terminar la venta
-        fetch(form.action, {
-            method: 'POST',
-            body: formData
-        })
-        .then(function(response) {
-            if (!response.ok) {
-                throw new Error('Ocurrió un error al terminar la venta.');
-            }
-            return response.json(); // Asumimos que el backend envía una respuesta JSON con el ID de la venta
-        })
-        .then(function(data) {
-            const ventaId = data.id; // Obtén el ID de la venta desde la respuesta
-
-            // Realiza la solicitud para abrir el cajón del monedero
-            return fetch('/drawer/open', {
-                method: 'GET'
-            }).then(function(response) {
-                if (!response.ok) {
-                    throw new Error('Ocurrió un error al abrir el cajón.');
-                }
-                // Realiza la solicitud para imprimir la factura
-                return fetch('/vender/ventas/imprimir-factura?id=' + ventaId, {
-                    method: 'POST'
-                });
-            });
-        })
-        .then(function(response) {
-            if (!response.ok) {
-                throw new Error('Ocurrió un error al imprimir la factura.');
-            }
-            // No redirige ni muestra mensajes adicionales en la interfaz de usuario
-        })
-        .catch(function(error) {
-            console.error('Error:', error);
-            alert('Ocurrió un error al procesar la venta.');
-        });
-    });
-</script>
 </body>
 </html>

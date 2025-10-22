@@ -15,6 +15,7 @@ import java.util.Optional;
 @Controller
 @RequestMapping(path = "/vender")
 public class VenderController {
+
     @Autowired
     private ProductosRepository productosRepository;
     @Autowired
@@ -23,6 +24,10 @@ public class VenderController {
     private ProductosVendidosRepository productosVendidosRepository;
     @Autowired
     private CashDrawerService cashDrawerService;
+
+    // ===========================
+    // MÉTODOS EXISTENTES
+    // ===========================
 
     @PostMapping(value = "/quitar/{indice}")
     public String quitarDelCarrito(@PathVariable int indice, HttpServletRequest request) {
@@ -50,24 +55,55 @@ public class VenderController {
     @PostMapping(value = "/terminar")
     public String terminarVenta(HttpServletRequest request, RedirectAttributes redirectAttrs) {
         ArrayList<ProductoParaVender> carrito = this.obtenerCarrito(request);
-        if (carrito == null || carrito.size() <= 0) {
+        if (carrito == null || carrito.isEmpty()) {
             return "redirect:/vender/";
         }
+
+        // Validar stock
+        for (ProductoParaVender item : carrito) {
+            Producto p = productosRepository.findById(item.getId()).orElse(null);
+            if (p == null) {
+                redirectAttrs.addFlashAttribute("mensaje", "Producto no encontrado: " + item.getNombre())
+                        .addFlashAttribute("clase", "warning");
+                return "redirect:/vender/";
+            }
+
+            float disponible = p.getExistencia();
+            float solicitado = item.getCantidad();
+            if (solicitado > disponible) {
+                redirectAttrs.addFlashAttribute(
+                        "mensaje",
+                        "Stock insuficiente de \"" + p.getNombre() +
+                                "\". Disponible: " + disponible + ", solicitado: " + solicitado)
+                        .addFlashAttribute("clase", "danger");
+                return "redirect:/vender/";
+            }
+        }
+
+        // Registrar venta
         Venta v = ventasRepository.save(new Venta());
         List<ProductoVendido> productosVendidos = new ArrayList<>();
-        for (ProductoParaVender productoParaVender : carrito) {
-            Producto p = productosRepository.findById(productoParaVender.getId()).orElse(null);
-            if (p == null) continue;
-            p.restarExistencia(productoParaVender.getCantidad());
+
+        for (ProductoParaVender item : carrito) {
+            Producto p = productosRepository.findById(item.getId()).orElse(null);
+            if (p == null)
+                continue;
+
+            p.restarExistencia(item.getCantidad());
             productosRepository.save(p);
-            ProductoVendido productoVendido = new ProductoVendido(productoParaVender.getCantidad(), productoParaVender.getPrecio(), productoParaVender.getNombre(), productoParaVender.getCodigo(), v);
-            productosVendidos.add(productoVendido);
-            productosVendidosRepository.save(productoVendido);
+
+            ProductoVendido pv = new ProductoVendido(
+                    item.getCantidad(),
+                    item.getPrecio(),
+                    item.getNombre(),
+                    item.getCodigo(),
+                    v);
+            productosVendidos.add(pv);
+            productosVendidosRepository.save(pv);
         }
 
         this.limpiarCarrito(request);
-        redirectAttrs
-                .addFlashAttribute("mensaje", "Venta realizada correctamente")
+        redirectAttrs.addFlashAttribute("mensaje", "Venta realizada correctamente")
                 .addFlashAttribute("clase", "success");
 
         try {
@@ -79,60 +115,53 @@ public class VenderController {
         return "redirect:/vender/";
     }
 
-    
     @PostMapping("/ventas/imprimir-factura")
-public String imprimirFactura(@RequestParam("id") Integer ventaId, RedirectAttributes redirectAttributes) {
-    try {
-        Optional<Venta> optionalVenta = ventasRepository.findByIdAsInteger(ventaId);
-        if (optionalVenta.isPresent()) {
-            Venta venta = optionalVenta.get();
-            List<ProductoVendido> productosVendidos = productosVendidosRepository.findByVenta(venta);
-            double totalVenta = productosVendidos.stream().mapToDouble(pv -> pv.getPrecio() * pv.getCantidad()).sum();
+    public String imprimirFactura(@RequestParam("id") Integer ventaId, RedirectAttributes redirectAttributes) {
+        try {
+            Optional<Venta> optionalVenta = ventasRepository.findByIdAsInteger(ventaId);
+            if (optionalVenta.isPresent()) {
+                Venta venta = optionalVenta.get();
+                List<ProductoVendido> productosVendidos = productosVendidosRepository.findByVenta(venta);
+                double totalVenta = productosVendidos.stream().mapToDouble(pv -> pv.getPrecio() * pv.getCantidad())
+                        .sum();
 
-            cashDrawerService.printFormattedInvoice(productosVendidos, totalVenta);
+                cashDrawerService.printFormattedInvoice(productosVendidos, totalVenta);
 
+                redirectAttributes
+                        .addFlashAttribute("mensaje", "Factura impresa correctamente")
+                        .addFlashAttribute("clase", "success");
+            } else {
+                redirectAttributes
+                        .addFlashAttribute("mensaje", "No se encontró la venta")
+                        .addFlashAttribute("clase", "warning");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             redirectAttributes
-                    .addFlashAttribute("mensaje", "Factura impresa correctamente")
-                    .addFlashAttribute("clase", "success");
-        } else {
-            redirectAttributes
-                    .addFlashAttribute("mensaje", "No se encontró la venta")
-                    .addFlashAttribute("clase", "warning");
+                    .addFlashAttribute("mensaje", "Error al imprimir la factura")
+                    .addFlashAttribute("clase", "danger");
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-        redirectAttributes
-                .addFlashAttribute("mensaje", "Error al imprimir la factura")
-                .addFlashAttribute("clase", "danger");
+        return "redirect:/vender/";
     }
-    return "redirect:/vender/";
-}
 
+    @GetMapping(value = "/")
+    public String interfazVender(Model model, HttpServletRequest request) {
+        model.addAttribute("producto", new Producto());
+        float total = 0;
+        ArrayList<ProductoParaVender> carrito = this.obtenerCarrito(request);
+        for (ProductoParaVender p : carrito)
+            total += p.getTotal();
+        model.addAttribute("total", total);
 
+        List<Venta> ventas = ventasRepository.findAllByOrderByFechaYHoraDesc();
+        model.addAttribute("ventas", ventas);
 
-
-
-
-    
-@GetMapping(value = "/")
-public String interfazVender(Model model, HttpServletRequest request) {
-    model.addAttribute("producto", new Producto());
-    float total = 0;
-    ArrayList<ProductoParaVender> carrito = this.obtenerCarrito(request);
-    for (ProductoParaVender p : carrito) total += p.getTotal();
-    model.addAttribute("total", total);
-
-    List<Venta> ventas = ventasRepository.findAllByOrderByFechaYHoraDesc();
-    model.addAttribute("ventas", ventas);
-
-    return "vender/vender";
-}
-
-
-    
+        return "vender/vender";
+    }
 
     private ArrayList<ProductoParaVender> obtenerCarrito(HttpServletRequest request) {
-        ArrayList<ProductoParaVender> carrito = (ArrayList<ProductoParaVender>) request.getSession().getAttribute("carrito");
+        ArrayList<ProductoParaVender> carrito = (ArrayList<ProductoParaVender>) request.getSession()
+                .getAttribute("carrito");
         if (carrito == null) {
             carrito = new ArrayList<>();
         }
@@ -143,10 +172,9 @@ public String interfazVender(Model model, HttpServletRequest request) {
         request.getSession().setAttribute("carrito", carrito);
     }
 
-
-
     @PostMapping(value = "/agregar")
-    public String agregarAlCarrito(@ModelAttribute Producto producto, HttpServletRequest request, RedirectAttributes redirectAttrs) {
+    public String agregarAlCarrito(@ModelAttribute Producto producto, HttpServletRequest request,
+            RedirectAttributes redirectAttrs) {
         ArrayList<ProductoParaVender> carrito = this.obtenerCarrito(request);
         Producto productoBuscadoPorCodigo = productosRepository.findFirstByCodigo(producto.getCodigo());
         if (productoBuscadoPorCodigo == null) {
@@ -156,23 +184,93 @@ public String interfazVender(Model model, HttpServletRequest request) {
             return "redirect:/vender/";
         }
         if (productoBuscadoPorCodigo.sinExistencia()) {
-            redirectAttrs
-                    .addFlashAttribute("mensaje", "El producto está agotado")
+            redirectAttrs.addFlashAttribute("mensaje", "El producto está agotado")
                     .addFlashAttribute("clase", "warning");
             return "redirect:/vender/";
         }
         boolean encontrado = false;
         for (ProductoParaVender productoParaVenderActual : carrito) {
             if (productoParaVenderActual.getCodigo().equals(productoBuscadoPorCodigo.getCodigo())) {
+                if (productoParaVenderActual.getCantidad() + 1 > productoBuscadoPorCodigo.getExistencia()) {
+                    redirectAttrs.addFlashAttribute("mensaje",
+                            "No hay suficiente stock de \"" + productoBuscadoPorCodigo.getNombre() + "\"")
+                            .addFlashAttribute("clase", "warning");
+                    return "redirect:/vender/";
+                }
                 productoParaVenderActual.aumentarCantidad();
                 encontrado = true;
                 break;
             }
         }
         if (!encontrado) {
-            carrito.add(new ProductoParaVender(productoBuscadoPorCodigo.getNombre(), productoBuscadoPorCodigo.getCodigo(), productoBuscadoPorCodigo.getPrecio(), productoBuscadoPorCodigo.getExistencia(), productoBuscadoPorCodigo.getId(), 1f));
+            carrito.add(new ProductoParaVender(
+                    productoBuscadoPorCodigo.getNombre(),
+                    productoBuscadoPorCodigo.getCodigo(),
+                    productoBuscadoPorCodigo.getPrecio(),
+                    productoBuscadoPorCodigo.getExistencia(),
+                    productoBuscadoPorCodigo.getId(),
+                    1f));
         }
         this.guardarCarrito(carrito, request);
         return "redirect:/vender/";
     }
+
+    @PostMapping("/agregarAutomatico")
+    public String agregarAutomatico(@RequestParam String codigo, HttpServletRequest request) {
+        ArrayList<ProductoParaVender> carrito = this.obtenerCarrito(request);
+
+        Producto productoBuscado = productosRepository.findFirstByCodigo(codigo);
+        if (productoBuscado == null) {
+            return "redirect:/vender/";
+        }
+
+        boolean encontrado = false;
+        for (ProductoParaVender producto : carrito) {
+            if (producto.getCodigo().equals(codigo)) {
+                if (producto.getCantidad() + 1 <= producto.getExistencia()) {
+                    producto.aumentarCantidad();
+                } else {
+                    return "redirect:/vender/";
+                }
+                encontrado = true;
+                break;
+            }
+        }
+
+        if (!encontrado) {
+            carrito.add(new ProductoParaVender(
+                    productoBuscado.getNombre(),
+                    productoBuscado.getCodigo(),
+                    productoBuscado.getPrecio(),
+                    productoBuscado.getExistencia(),
+                    productoBuscado.getId(),
+                    1f));
+        }
+
+        this.guardarCarrito(carrito, request);
+        return "redirect:/vender/";
+    }
+
+    // ===========================
+    // NUEVO MÉTODO ✅
+    // ===========================
+    @PostMapping("/actualizarCantidad/{id}")
+    public String actualizarCantidad(@PathVariable int id,
+            @RequestParam float cantidad,
+            HttpServletRequest request) {
+        ArrayList<ProductoParaVender> carrito = this.obtenerCarrito(request);
+
+        for (ProductoParaVender p : carrito) {
+            if (p.getId() == id) {
+                if (cantidad >= 0) {
+                    p.setCantidad(cantidad);
+                }
+                break;
+            }
+        }
+
+        this.guardarCarrito(carrito, request);
+        return "redirect:/vender/"; // 🔹 Redirige de nuevo a la vista principal
+    }
+
 }

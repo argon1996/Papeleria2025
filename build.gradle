@@ -1,29 +1,25 @@
-buildscript {
-    repositories { mavenCentral() }
-    dependencies { classpath("org.springframework.boot:spring-boot-gradle-plugin:2.1.6.RELEASE") }
+plugins {
+    id 'org.springframework.boot' version '2.1.6.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
+    id 'eclipse'
+    id 'idea'
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-
-bootJar {
-    baseName = 'sistema-ventas-by-parzibyte'
-    version  = '0.2.0'
-}
+group = 'me.parzibyte'
+version = '0.2.0'
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
 repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
 configurations {
     developmentOnly
-    runtimeClasspath { extendsFrom developmentOnly }
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
 }
 
 dependencies {
@@ -31,8 +27,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-logging'
+    implementation 'org.springframework.boot:spring-boot-starter-security'   // <- añade Security
 
     // Thymeleaf extras y layout
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
@@ -41,10 +36,10 @@ dependencies {
     // Utilidades
     implementation 'org.webjars:jquery:3.6.0'
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
-    implementation 'com.fasterxml.jackson.jr:jackson-jr-objects:2.13.0'
+    implementation 'com.fasterxml.jackson.jr:jackson-jr-objects:2.9.9'      // <- para JSON.std
 
-    // Driver MySQL 8 (runtime)
-    runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+    // Driver MySQL (Boot gestiona versión)
+    runtimeOnly 'mysql:mysql-connector-java'
 
     // Dev
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -54,6 +49,7 @@ dependencies {
     testImplementation 'com.jayway.jsonpath:json-path'
 }
 
+// Crear carpeta tests si falta
 task createTestFolder {
     doLast {
         def testDir = file('src/test/java')
