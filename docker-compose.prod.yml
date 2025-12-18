@@ -1,16 +1,15 @@
+version: "3.8"
+
 services:
-  mysql_dev:
+  mysql:
     image: mysql:8.0
-    container_name: mysql_dev
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: ventas_springboot
       TZ: America/Bogota
-    ports:
-      - "3306:3306"
     volumes:
-      - "C:/Interestelar/Papeleria2025/data_mysql:/var/lib/mysql"
-      - "C:/Interestelar/Papeleria2025/backups:/backups"
+      - db_data:/var/lib/mysql
+      - backups:/backups
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
       interval: 5s
@@ -18,26 +17,36 @@ services:
       retries: 10
     restart: unless-stopped
 
-  papeleria_app:
+  microprint:
+    build: ./1printer-api
+    container_name: microprint
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+  app:
     build: .
     container_name: papeleria_app
     depends_on:
-      mysql_dev:
+      mysql:
         condition: service_healthy
+      microprint:
+        condition: service_started
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_dev:3306/ventas_springboot
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ventas_springboot
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
-      MICROPRINT_BASE_URL: http://host.docker.internal:3001
+      MICROPRINT_BASE_URL: http://microprint:3001
       MICROPRINT_PRINTER: ImpresoraTermica
       APP_UPLOADS_DIR: /app/uploads
       TZ: America/Bogota
     ports:
       - "8080:8080"
     volumes:
-      - "C:/Interestelar/Papeleria2025/uploads:/app/uploads"
-      - "./src/main/resources/templates:/app/templates:ro"
-      - "./src/main/resources/static:/app/static:ro"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - uploads:/app/uploads
     restart: unless-stopped
+
+volumes:
+  db_data:
+  backups:
+  uploads:

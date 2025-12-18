@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layouts/master_tienda">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Papelería Interstellar | Tienda</title>
+  <meta name="description" content="Papelería Interstellar: papelería, tecnología, juguetes, peluches y más. Compra o pregunta por WhatsApp.">
+  <meta property="og:title" content="Papelería Interstellar | Tienda">
+  <meta property="og:description" content="Papelería, tecnología, juguetes y más. Pide por WhatsApp.">
+  <meta property="og:image" content="/img/fondo.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://papeleria.interstellar/shop">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Papelería Interstellar | Tienda">
+  <meta name="twitter:description" content="Papelería, tecnología, juguetes y más. Pide por WhatsApp.">
+  <meta name="twitter:image" content="/img/fondo.png">
+  <link rel="icon" href="/img/fondo.png">
+  <link rel="stylesheet" href="tienda.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .chip.active { background-color: #0d6efd; color: #fff; }
+    .img-wrap { min-height: 160px; display: flex; align-items: center; justify-content: center; position: relative; }
+    .img-skeleton { position: absolute; inset: 0; background: linear-gradient(90deg, #f3f3f3 25%, #e9ecef 50%, #f3f3f3 75%); background-size: 200% 100%; animation: skeleton 1.2s ease-in-out infinite; border-radius: 8px; }
+    .img-wrap img { position: relative; z-index: 2; }
+    .img-wrap .placeholder { position: absolute; z-index: 2; font-size: .85rem; }
+    .promo-carousel { position: relative; padding: 12px 12px 38px; }
+    .promo-carousel .carousel-inner { border: 1px solid #e9ecef; border-radius: 12px; background: #f8f9fa; }
+    .promo-carousel .carousel-controls { margin-top: 8px; }
+    .slide-card a { color: inherit; text-decoration: none; }
+    @keyframes skeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  </style>
+</head>
+
+<body>
+<main layout:fragment="contenido">
+
+  <!-- Header -->
+  <header class="hero text-center">
+    <img th:src="@{/img/fondo.png}" alt="Papelería Interstellar | Tu Tienda Virtual" class="img-fluid logo mb-2">
+
+    <div class="hero-title">
+      <h1 class="page-title fw-bold text-primary">
+        <i class="fas fa-rocket me-2"></i> Descubre algo para ti
+      </h1>
+      <p class="hero-sub text-muted mb-0">Papelería, tecnología, juguetes y más</p>
+    </div>
+
+    <!-- Buscador -->
+    <form id="search-form" th:action="@{/shop}" method="get" class="search-wrap" onsubmit="return handleSubmit(event);">
+      <div class="search-box">
+        <i class="fa fa-search text-primary ms-1" style="font-size:1.05rem;"></i>
+        <input type="search" name="search" id="search-input"
+               th:value="${param.search}"
+               placeholder="Buscar por nombre, código o marca..."
+               autocomplete="on" enterkeyhint="search" aria-label="Buscar productos" maxlength="100" />
+        <span class="divider d-none d-md-inline-block"></span>
+        <select name="categoria" th:value="${param.categoria}"
+                onchange="document.getElementById('search-form').submit();" aria-label="Filtrar por categoría">
+          <option value="" th:selected="${param.categoria == null or param.categoria == ''}">Todas</option>
+          <option value="Jugueteria niña"  th:selected="${param.categoria == 'Jugueteria niña'}">Juguetería niña</option>
+          <option value="Jugueteria niño"  th:selected="${param.categoria == 'Jugueteria niño'}">Juguetería niño</option>
+          <option value="Papeleria"        th:selected="${param.categoria == 'Papeleria'}">Papelería</option>
+          <option value="Pelucheria"       th:selected="${param.categoria == 'Pelucheria'}">Peluchería</option>
+          <option value="Tecnologia"       th:selected="${param.categoria == 'Tecnologia'}">Tecnología</option>
+          <option value="Anime"            th:selected="${param.categoria == 'Anime'}">Anime</option>
+          <option value="Relojeria"        th:selected="${param.categoria == 'Relojeria'}">Relojería</option>
+          <option value="Paqueteria"       th:selected="${param.categoria == 'Paqueteria'}">Paquetería</option>
+          <option value="Otros"            th:selected="${param.categoria == 'Otros'}">Otros</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-search d-none d-sm-inline-flex">Buscar</button>
+        <button type="button" class="btn btn-outline-secondary ms-2 d-none d-sm-inline-flex" onclick="window.location.href='/shop';return false;">Limpiar</button>
+      </div>
+
+      <div class="chips mt-2">
+        <a href="#" onclick="return setCat(event,'Papeleria')" class="chip" role="button"
+           th:classappend="${param.categoria} == 'Papeleria' ? ' active' : ''">Papelería</a>
+        <a href="#" onclick="return setCat(event,'Tecnologia')" class="chip" role="button"
+           th:classappend="${param.categoria} == 'Tecnologia' ? ' active' : ''">Tecnología</a>
+        <a href="#" onclick="return setCat(event,'Pelucheria')" class="chip" role="button"
+           th:classappend="${param.categoria} == 'Pelucheria' ? ' active' : ''">Peluchería</a>
+        <a href="#" onclick="return setCat(event,'Anime')" class="chip" role="button"
+           th:classappend="${param.categoria} == 'Anime' ? ' active' : ''">Anime</a>
+        <a href="#" onclick="return setCat(event,'Otros')" class="chip" role="button"
+           th:classappend="${param.categoria} == 'Otros' ? ' active' : ''">Otros</a>
+      </div>
+    </form>
+  </header>
+
+  <!-- Carrusel -->
+  <section class="promo-carousel">
+    <div class="section-container">
+      <div id="promoHero" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3200">
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <div class="slide-card">
+              <i class="fas fa-gift icon-glow"></i>
+              <span>Bonos Compensar activos - ¡aprovéchalos hoy!</span>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <div class="slide-card">
+              <i class="fas fa-map-marker-alt icon-glow amber"></i>
+              <span>Ubicación: Calle 81 Sur #8-21, Yomasa, Bogotá.</span>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <div class="slide-card">
+              <i class="fab fa-whatsapp icon-glow green"></i>
+              <a class="link-light text-decoration-none" href="https://wa.me/573142649585" target="_blank">
+                Pedidos por WhatsApp 314 264 9585 - ¡Atención inmediata!
+              </a>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <div class="slide-card">
+              <i class="fas fa-tags icon-glow purple"></i>
+              <span>Promos en papelería, tecnología y juguetería.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sin resultados -->
+  <div th:if="${#lists.isEmpty(productos)}"
+       class="alert alert-info text-center shadow-sm m-4"
+       style="border-radius:12px;background-color:#e7f5ff;">
+    <h5 class="mb-0 text-info">No encontramos productos que coincidan con tu búsqueda.</h5>
+  </div>
+
+  <!-- Productos -->
+  <section class="products-section">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center mb-2" th:if="${!#lists.isEmpty(productos)}">
+        <span class="text-muted small" aria-live="polite" th:text="${#lists.size(productos)} + ' resultados'"></span>
+        <a href="#" class="text-decoration-none small" onclick="window.location.href='/shop';return false;" aria-label="Limpiar filtros">Limpiar filtros</a>
+      </div>
+
+      <div class="row g-3 g-sm-4 justify-content-center">
+        <div class="col-6 col-sm-6 col-md-4 col-lg-3" th:each="p: ${productos}">
+          <div class="card product-card">
+            <div class="product-thumb p-3">
+              <div class="img-wrap position-relative">
+                <div class="img-skeleton"></div>
+
+                <img th:if="${p.imagenUrl}"
+                     th:src="@{${p.imagenUrl}}"
+                     class="img-fluid product-img"
+                     th:alt="${'Imagen de ' + p.nombre}"
+                     th:attr="data-img=@{${p.imagenUrl}},data-title=${p.nombre}"
+                     loading="lazy"
+                     role="button" />
+
+                <div th:if="${p.imagenUrl == null}" class="placeholder text-muted">Sin imagen</div>
+              </div>
+            </div>
+
+            <div class="card-body text-center px-3 py-3">
+              <h5 class="product-name" th:text="${p.nombre}"></h5>
+              <div class="price">$<span th:text="${#numbers.formatDecimal(p.precio,1,2)}"></span></div>
+
+              <div class="mb-2 d-flex justify-content-center align-items-center gap-2">
+                <span class="badge badge-soft">Código: <span th:text="${p.codigo}"></span></span>
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                        th:attr="data-codigo=${p.codigo}" onclick="copyCode(this)" aria-label="Copiar código del producto">
+                  <i class="fa fa-copy"></i>
+                </button>
+              </div>
+
+              <p class="meta mb-3">
+                <span th:if="${p.existencia > 0}">Stock: <span th:text="${p.existencia}"></span> unidades</span>
+                <span class="text-danger fw-semibold" th:if="${p.existencia <= 0}">Agotado</span>
+              </p>
+
+              <a th:if="${p.existencia > 0}"
+                 th:with="nl=${T(java.lang.System).lineSeparator()}, msg=${'Hola! Me interesa este producto:' + nl + '- Nombre: ' + p.nombre + nl + '- Código: ' + p.codigo + nl + '- Precio: $' + #numbers.formatDecimal(p.precio,1,2)}"
+                 th:href="@{|https://wa.me/573142649585?text=${#uris.escapeQueryParam(msg)}|}"
+                 target="_blank" class="btn btn-success w-100">
+                <i class="fab fa-whatsapp"></i> Preguntar
+              </a>
+
+              <button th:if="${p.existencia <= 0}" class="btn btn-secondary w-100" disabled>Sin stock</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Modal -->
+  <div class="modal fade" id="productImgModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="productImgTitle"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="productImgLarge" class="img-fluid" alt="">
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // búsqueda con debounce
+  let timerId; const DELAY_MS = 500;
+  function handleSubmit(e){
+    const val = (document.getElementById('search-input')?.value || '').trim();
+    const cat = (document.querySelector('select[name="categoria"]')?.value || '').trim();
+    if (!val && !cat) {
+      e.preventDefault();
+      return false;
+    }
+    return true;
+  }
+  const input = document.getElementById('search-input');
+  if (input){
+    input.addEventListener('input', function(){
+      clearTimeout(timerId);
+      timerId = setTimeout(()=>{ document.getElementById('search-form').submit(); }, DELAY_MS);
+    });
+  }
+  function setCat(ev,cat){
+    ev.preventDefault();
+    const sel = document.querySelector('select[name="categoria"]');
+    if (sel){ sel.value = cat; }
+    document.getElementById('search-form').submit();
+    return false;
+  }
+
+  // Modal y comportamientos
+  document.addEventListener('DOMContentLoaded', function(){
+    const imgs = document.querySelectorAll('.product-img');
+    const modalEl = document.getElementById('productImgModal');
+    const modalImg = document.getElementById('productImgLarge');
+    const modalTitle = document.getElementById('productImgTitle');
+    if (imgs.length && modalEl && modalImg && modalTitle && window.bootstrap) {
+      const modal = new bootstrap.Modal(modalEl);
+      imgs.forEach(img => {
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('load', ()=>{ img.closest('.img-wrap')?.querySelector('.img-skeleton')?.classList.add('d-none'); });
+        const open = () => {
+          const src = img.getAttribute('data-img');
+          const title = img.getAttribute('data-title') || '';
+          if (!src) return;
+          modalImg.src = src;
+          modalImg.alt = title ? 'Imagen de ' + title : '';
+          modalTitle.textContent = title;
+          modal.show();
+        };
+        img.addEventListener('click', open);
+        img.addEventListener('keydown', (e)=>{ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+        img.setAttribute('tabindex', '0');
+      });
+    }
+  });
+
+  function copyCode(btn){
+    const code = btn.getAttribute('data-codigo') || '';
+    if (!code || !navigator.clipboard) return;
+    navigator.clipboard.writeText(code).then(()=>{
+      btn.classList.remove('btn-outline-secondary');
+      btn.classList.add('btn-success');
+      setTimeout(()=>{ btn.classList.remove('btn-success'); btn.classList.add('btn-outline-secondary'); }, 800);
+    });
+  }
+</script>
+
+</body>
+</html>

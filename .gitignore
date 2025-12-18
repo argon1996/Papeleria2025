@@ -17,3 +17,10 @@ mysql_data/
 *.tmp
 *.err
 *.cnf
+
+# Compilados y artefactos locales
+bin/
+uploads/
+backups/
+tmp_index_utf8.html
+1printer-api/node_modules/

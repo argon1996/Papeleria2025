@@ -1,0 +1,11 @@
+data_mysql
+sql
+.git
+target
+#build
+.gradle
+node_modules
+**/*.log
+**/*.tmp
+.DS_Store
+Thumbs.db

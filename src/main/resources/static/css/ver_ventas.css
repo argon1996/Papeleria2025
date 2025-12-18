@@ -1,0 +1,59 @@
+/* Solución más específica para la tabla */
+.table tbody td {
+    color: #333 !important;
+    /* Asegura que el color de los datos sea oscuro */
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* ✅ CORRECCIÓN: Sobrescribe table-dark con fondo oscuro y texto blanco */
+.table thead.table-dark th {
+    background-color: #343a40 !important;
+    /* Gris oscuro para el encabezado */
+    color: #ffffff !important;
+    /* Texto blanco */
+}
+
+/* Aseguramos que otros encabezados tengan texto oscuro */
+.table th {
+    color: #333 !important;
+    /* Texto oscuro para todos los encabezados */
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* Para los botones de acción */
+.btn-primary,
+.btn-danger {
+    color: #fff !important;
+    border-radius: 20px;
+}
+
+/* Estilos para los botones deshabilitados (cuando no tienen permiso) */
+.badge.bg-secondary {
+    color: #fff !important;
+    background-color: #6c757d !important;
+    display: block;
+    margin-top: 8px;
+}
+
+/* Estilo para el contenedor de la tabla */
+.table-responsive {
+    overflow-x: auto;
+    margin-top: 20px;
+    max-height: 500px;
+}
+
+h2,
+h1,
+.table th {
+    color: #333 !important;
+    /* Fuerza el color oscuro */
+}
+
+.table thead.table-dark th {
+    background-color: #343a40 !important;
+    /* Fondo oscuro */
+    color: #fff !important;
+    /* Texto blanco */
+}

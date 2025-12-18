@@ -1,0 +1,43 @@
+﻿<!doctype html>
+<html lang="es" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head th:replace="layouts/encabezado :: encabezado"></head>
+
+<body style="background-color: #ffffff;"> <!-- Iniciar sesión (arriba derecha, azul) -->
+  <a th:href="@{/login}" aria-label="Iniciar sesión"
+    style=" position: fixed; top: 1rem; right: 1rem; z-index: 1000; display: inline-flex; align-items: center; gap: .6rem; padding: .6rem 1.1rem; border-radius: 999px; background: #2563eb; color: #ffffff; text-decoration: none; font-weight: 600; letter-spacing: .02em; font-size: 1rem; box-shadow: 0 6px 16px rgba(37,99,235,.35); ">
+    <i class="fa fa-user" style="font-size: 1.25rem;"></i>
+    <span>Iniciar sesión</span>
+  </a>
+
+  <!-- Ubicación (abajo derecha, azul) -->
+  <a th:href="@{'https://maps.app.goo.gl/o2fQEshrgGK3MGKX9'}"
+    target="_blank" aria-label="Ver ubicación"
+    style=" position: fixed; right: 1rem; bottom: 5.5rem; z-index: 900; width: 52px; height: 52px; border-radius: 50%; background: #0d6efd; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 22px rgba(13,110,253,.35); ">
+    <i class="fas fa-map-marker-alt" style="font-size: 1.3rem;"></i>
+  </a>
+
+  <!-- WhatsApp overlay con URL absoluta y z-index alto -->
+  <a th:href="${'https://wa.me/573142649585?text=' + #uris.escapeQueryParam('Hola, quisiera más información.')}"
+    target="_blank" rel="noopener" aria-label="WhatsApp" style="
+     position:fixed; right:1rem; bottom:1rem; z-index:3000;
+     width:56px; height:56px; border-radius:50%;
+     background:#25D366; color:#fff; display:flex; align-items:center; justify-content:center;
+     box-shadow:0 10px 22px rgba(37,211,102,.35);
+   ">
+    <i class="fab fa-whatsapp" style="font-size:1.5rem;"></i>
+  </a>
+
+
+
+
+
+
+  <main layout:fragment="contenido" role="main" class="container my-4"></main>
+  <footer class="text-center mt-4 mb-2 text-muted" style="font-size: 0.9rem;">
+    <p>© 2025 InterEstelar - Papelería Interestelar</p>
+    <p>Calle 81 sur #8-21, &nbsp; Cel: 3142649585</p>
+  </footer>
+</body>
+
+</html>
