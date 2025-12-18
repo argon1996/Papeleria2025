@@ -1,9 +1,9 @@
 package me.parzibyte.prueba;
 
 import me.parzibyte.sistemaventasspringboot.entity.ProductoVendido;
-import me.parzibyte.sistemaventasspringboot.ProductosVendidosRepository;
-import me.parzibyte.sistemaventasspringboot.Venta;
-import me.parzibyte.sistemaventasspringboot.VentasRepository;
+import me.parzibyte.sistemaventasspringboot.entity.Venta;
+import me.parzibyte.sistemaventasspringboot.repository.ProductosVendidosRepository;
+import me.parzibyte.sistemaventasspringboot.repository.VentasRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

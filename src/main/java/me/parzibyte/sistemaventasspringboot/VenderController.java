@@ -1,8 +1,13 @@
 package me.parzibyte.sistemaventasspringboot;
 
 import me.parzibyte.prueba.CashDrawerService;
+import me.parzibyte.sistemaventasspringboot.entity.Producto;
 import me.parzibyte.sistemaventasspringboot.entity.ProductoParaVender;
 import me.parzibyte.sistemaventasspringboot.entity.ProductoVendido;
+import me.parzibyte.sistemaventasspringboot.entity.Venta;
+import me.parzibyte.sistemaventasspringboot.repository.ProductosRepository;
+import me.parzibyte.sistemaventasspringboot.repository.ProductosVendidosRepository;
+import me.parzibyte.sistemaventasspringboot.repository.VentasRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -205,13 +210,7 @@ public class VenderController {
             }
         }
         if (!encontrado) {
-            carrito.add(new ProductoParaVender(
-                    productoBuscadoPorCodigo.getNombre(),
-                    productoBuscadoPorCodigo.getCodigo(),
-                    productoBuscadoPorCodigo.getPrecio(),
-                    productoBuscadoPorCodigo.getExistencia(),
-                    productoBuscadoPorCodigo.getId(),
-                    1f));
+            carrito.add(ProductoParaVender.from(productoBuscadoPorCodigo, 1f));
         }
         this.guardarCarrito(carrito, request);
         return "redirect:/vender/";
@@ -240,13 +239,7 @@ public class VenderController {
         }
 
         if (!encontrado) {
-            carrito.add(new ProductoParaVender(
-                    productoBuscado.getNombre(),
-                    productoBuscado.getCodigo(),
-                    productoBuscado.getPrecio(),
-                    productoBuscado.getExistencia(),
-                    productoBuscado.getId(),
-                    1f));
+            carrito.add(ProductoParaVender.from(productoBuscado, 1f));
         }
 
         this.guardarCarrito(carrito, request);
