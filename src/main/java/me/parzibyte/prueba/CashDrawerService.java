@@ -1,6 +1,6 @@
 package me.parzibyte.prueba;
 
-import me.parzibyte.sistemaventasspringboot.ProductoVendido;
+import me.parzibyte.sistemaventasspringboot.entity.ProductoVendido;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
