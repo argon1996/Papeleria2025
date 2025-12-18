@@ -1,6 +1,8 @@
 package me.parzibyte.sistemaventasspringboot;
 
 import me.parzibyte.prueba.CashDrawerService;
+import me.parzibyte.sistemaventasspringboot.entity.ProductoParaVender;
+import me.parzibyte.sistemaventasspringboot.entity.ProductoVendido;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

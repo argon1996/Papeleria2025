@@ -1,6 +1,6 @@
 package me.parzibyte.prueba;
 
-import me.parzibyte.sistemaventasspringboot.ProductoVendido;
+import me.parzibyte.sistemaventasspringboot.entity.ProductoVendido;
 import me.parzibyte.sistemaventasspringboot.ProductosVendidosRepository;
 import me.parzibyte.sistemaventasspringboot.Venta;
 import me.parzibyte.sistemaventasspringboot.VentasRepository;
