@@ -17,27 +17,16 @@ services:
       retries: 10
     restart: unless-stopped
 
-  microprint:
-    build: ./1printer-api
-    container_name: microprint
-    ports:
-      - "3001:3001"
-    restart: unless-stopped
-
   app:
     build: .
     container_name: papeleria_app
     depends_on:
       mysql:
         condition: service_healthy
-      microprint:
-        condition: service_started
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ventas_springboot
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
-      MICROPRINT_BASE_URL: http://microprint:3001
-      MICROPRINT_PRINTER: ImpresoraTermica
       APP_UPLOADS_DIR: /app/uploads
       TZ: America/Bogota
     ports:
